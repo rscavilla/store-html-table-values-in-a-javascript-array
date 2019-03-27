@@ -1,3 +1,7 @@
+/*
+*       this function depends on jquery and a jquery plugin jquery.json-2.4.min
+*       as well as the sample table supplied in this Repository
+*/
         function readTblValues()
         {
             var TableData = '';
