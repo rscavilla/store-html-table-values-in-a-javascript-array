@@ -6,8 +6,7 @@
  * return: PHP array
  * 
  * Robert Scavilla
- * https://github.com/rscavilla/store-html-table-values-in-a-javascript-array/new/master
- */
+ * https://github.com/rscavilla/store-html-table-values-in-a-javascript-array/processJSONArray.php
 echo processJSONArray();
 
 function processJSONArray()
