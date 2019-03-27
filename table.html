@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8" />
+    <title>Store HTML Table Values in a Javascript ArrayUsing jQuery and Ajax</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="jquery.json-2.4.min.js"></script>
+</head>
+<body>
+    <table border="1" id="sampleTbl" width="515">
+        <thead>
+            <tr>
+                <th align="center" width="20">Task No.</th>
+                <th width="150">Date</th>
+                <th width="170">Description</th>
+                <th width="170">Task</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td align="center">1</td>
+                <td>December 24, 2012</td>
+                <td>Christmas Eve</td>
+                <td>Make dinner</td>
+            </tr>
+            <tr>
+                <td align="center">2</td>
+                <td>January 11, 2013</td>
+                <td>Anniversary</td>
+                <td>Pickup flowers</td>
+            </tr>
+            <tr>
+                <td align="center">3</td>
+                <td>March 7, 2013</td>
+                <td>Birthday</td>
+                <td>Get present</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <input type="button" value="1. Read Table Values" name="read" onClick="readTblValues()"/>
+    <input type="button" value="2. Store values in JS Array" name="store" onClick="storeAndShowTableValues()"/>    
+    <input type="button" value="3. Convert JS Array to json" name="convert" onClick="convertArrayToJSON()"/>
+    <input type="button" value="4. Send json array to Server" name="send" onClick="sendTblDataToServer()"/>
+    
+    <br><br>
+    <div id="tbTableValues"></div>
+    <div id="tbTableValuesArray"></div>
+    <div id="tbConvertToJSON"></div>
+    <div id="tbServerResponse"></div>
+    
+    
+    <script>
+/*
+ * Robert Scavilla
+ * https://github.com/rscavilla/store-html-table-values-in-a-javascript-array
+ */
+        function readTblValues()
+        {
+            var TableData = '';
+
+            $('#tbTableValues').val('');    // clear textbox
+            $('#sampleTbl tr').each(function (row, tr) {
+                TableData = TableData
+                        + $(tr).find('td:eq(0)').text() + ' '  // Task No.
+                        + $(tr).find('td:eq(1)').text() + ' '  // Date
+                        + $(tr).find('td:eq(2)').text() + ' '  // Description
+                        + $(tr).find('td:eq(3)').text() + ' '  // Task
+                        + '\n';
+            });
+            $('#tbTableValues').html(TableData);
+        }
+
+        function storeAndShowTableValues()
+        {
+            var TableData;
+            TableData = storeTblValues();
+            $('#tbTableValuesArray').html('<br>JS Array: <br>' + print_r(TableData));
+        }
+        function storeTblValues()
+        {
+            var TableData = new Array();
+
+            $('#sampleTbl tr').each(function (row, tr) {
+                TableData[row] = {
+                    "taskNo": $(tr).find('td:eq(0)').text()
+                    , "date": $(tr).find('td:eq(1)').text()
+                    , "description": $(tr).find('td:eq(2)').text()
+                    , "task": $(tr).find('td:eq(3)').text()
+                }
+            });
+            TableData.shift();  // first row will be empty - so remove
+            return TableData;
+        }
+
+        function convertArrayToJSON()
+        {
+            var TableData;
+            TableData = $.toJSON(storeTblValues());
+            $('#tbConvertToJSON').html('<br>JSON array: <br>' + TableData.replace(/},/g, "},<br>"));
+
+
+        }
+        function sendTblDataToServer()
+        {
+            var TableData;
+            TableData = $.toJSON(storeTblValues());
+            $('#tbSendTblDataToServer').val('JSON array to send to server: <br<br>' + TableData.replace(/},/g, "},<br>"));
+
+            $.ajax({
+                type: "POST",
+                url: "processJSONArray.php",
+                data: "pTableData=" + TableData,    // post TableData to server script
+
+                success: function (msg) {
+                    // return value stored in msg variable 
+                    $('#tbServerResponse').html('Server Response:<br><br><pre>' + msg + '</pre>');
+                }
+            });
+        }
+
+
+        function print_r(arr, level) {
+            var dumped_text = "";
+            if (!level)
+                level = 0;
+
+            //The padding given at the beginning of the line.
+            var level_padding = "";
+            for (var j = 0; j < level + 1; j++)
+                level_padding += "    ";
+
+            if (typeof (arr) === 'object') { //Array/Hashes/Objects 
+                for (var item in arr) {
+                    var value = arr[item];
+
+                    if (typeof (value) === 'object') { //If it is an array,
+                        dumped_text += level_padding + "'" + item + "' \n";
+                        dumped_text += print_r(value, level + 1);
+                    } else {
+                        dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
+                    }
+                }
+            } else { //Stings/Chars/Numbers etc.
+                dumped_text = "===>" + arr + "<===(" + typeof (arr) + ")";
+            }
+            return dumped_text;
+        }
+    </script>
+</body>
+</html>
